@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - $default-branch
+      - main
   discussion:
     types:
       - created
@@ -34,6 +34,9 @@ jobs:
     name: Sync
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
       - uses: ./.github/workflows/sync_article.yml
 
   build:
