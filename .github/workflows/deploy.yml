@@ -32,7 +32,6 @@ env:
 jobs:
   sync:
     name: Sync
-    runs-on: ubuntu-latest
     uses: ./.github/workflows/sync_article.yml
 
   build:
