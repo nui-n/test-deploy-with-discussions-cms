@@ -33,11 +33,7 @@ jobs:
   sync:
     name: Sync
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - uses: ./.github/workflows/sync_article.yml
+    uses: ./.github/workflows/sync_article.yml
 
   build:
     name: Build
