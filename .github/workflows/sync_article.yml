@@ -1,0 +1,66 @@
+name: Sync article
+
+on:
+  workflow_call:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      discussions: read
+    steps:
+      - run: ${{ github.event.discussion.category.name == 'Posts' && github.event.discussion.user.login == github.repository_owner }}
+
+  discussion:
+    needs: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: read
+    env:
+      ID: ${{ github.event.discussion.node_id }}
+      ACTION: ${{ github.event.action }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Make markdown
+        run: |
+          TITLE='${{ github.event.discussion.title }}'
+
+          cat > "${ID}.md" <<EOF
+          ---
+          title: "${TITLE//\"/\\\"}"
+          created_at: "${{ github.event.discussion.created_at }}"
+          updated_at: "${{ github.event.discussion.updated_at }}"
+          ---
+
+          ${{ github.event.discussion.body }}
+          EOF
+      - run: |
+          cat "${ID}.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Create data branch if missing and switch
+        run: |
+          if git ls-remote --heads origin data | grep -q data; then
+            git fetch origin data:data
+            git switch data
+          else
+            git switch --orphan data
+          fi
+
+      - name: Make changes and push
+        run: |
+          if [ ${ACTION} = "created" ] || [ ${ACTION} = "edited" ]; then
+            git add .
+            git commit -m "add ${ID}.md" || echo "no changes"
+          else
+            git rm ${ID}.md
+            git commit -m "delete ${ID}.md"
+          fi
+
+          git push -u origin data
