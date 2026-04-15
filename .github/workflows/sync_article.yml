@@ -1,7 +1,11 @@
 name: Sync article
 
 on:
-  workflow_call:
+  discussion:
+    types:
+      - created
+      - edited
+      - deleted
 
 jobs:
   check:

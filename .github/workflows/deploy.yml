@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
-  discussion:
+
+  workflow_run:
+    workflows:
+      - Sync article
     types:
-      - created
-      - edited
-      - deleted
+      - completed
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +17,6 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
-  discussions: read
   pages: write
   id-token: write
 
@@ -31,13 +31,9 @@ env:
   # BUILD_PATH: subfolder
 
 jobs:
-  sync:
-    name: Sync
-    uses: ./.github/workflows/sync_article.yml
-
   build:
     name: Build
-    needs: sync
+    if: ${{ !(github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
