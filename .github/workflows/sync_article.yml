@@ -19,7 +19,7 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       discussions: read
     env:
       ID: ${{ github.event.discussion.node_id }}
