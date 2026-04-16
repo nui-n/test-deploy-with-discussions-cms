@@ -1,4 +1,3 @@
----
 /*
  * Copyright 2026 nuin
  *
@@ -15,24 +14,15 @@
  * limitations under the License.
  */
 
-// Query
-import { getAvailableArticles } from '../query/articles.query';
+import { getCollection } from 'astro:content';
 
-// Layouts
-import Page from '../layouts/Page.astro';
+// Types
+import type { CollectionEntry } from 'astro:content';
 
-import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+export async function getAvailableArticles(): Promise<Array<CollectionEntry<'articles'>>> {
+  const availableArticles = (await getCollection('articles')).sort(
+    ({ data: a }, { data: b }) => b.created_at.getTime() - a.created_at.getTime(),
+  );
 
-const articles = await getAvailableArticles();
----
-
-<Page title="" description={SITE_DESCRIPTION}>
-  <h1>{SITE_TITLE}</h1>
-  <p>{SITE_DESCRIPTION}</p>
-
-  <ul>
-    {articles.map((article) => (
-      <li><a href={`articles/${article.id}`}>{article.data.title}</a></li>
-    ))}
-  </ul>
-</Page>
+  return availableArticles;
+}
