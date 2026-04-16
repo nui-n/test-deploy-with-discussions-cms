@@ -3,6 +3,9 @@ name: Build
 on:
   workflow_call:
     inputs:
+      build_path:
+        required: true
+        type: string
       origin:
         required: true
         type: string
@@ -12,7 +15,6 @@ on:
 
 jobs:
   build:
-    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,20 +65,20 @@ jobs:
         with:
           node-version: "24"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-          cache-dependency-path: ${{ env.BUILD_PATH }}/${{ steps.detect-package-manager.outputs.lockfile }}
+          cache-dependency-path: ${{ inputs.build_path }}/${{ steps.detect-package-manager.outputs.lockfile }}
 
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
-        working-directory: ${{ env.BUILD_PATH }}
+        working-directory: ${{ inputs.build_path }}
 
       - name: Build with Astro
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
             --site "${{ inputs.origin }}" \
             --base "${{ inputs.base_path }}"
-        working-directory: ${{ env.BUILD_PATH }}
+        working-directory: ${{ inputs.build_path }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ${{ env.BUILD_PATH }}/dist
+          path: ${{ inputs.build_path }}/dist

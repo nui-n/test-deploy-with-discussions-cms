@@ -54,6 +54,7 @@ jobs:
       contents: read
     uses: ./.github/workflows/build.yml
     with:
+      build_path: ${{ env.BUILD_PATH }}
       origin: ${{ needs.setup.outputs.origin }}
       base_path: ${{ needs.setup.outputs.base_path }}
 
@@ -62,6 +63,7 @@ jobs:
     needs: build
     permissions:
       pages: write
+      id-token: write
     runs-on: ubuntu-latest
     environment:
       name: github-pages
